@@ -1,0 +1,148 @@
+@tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+
+  @layer base {
+    :root {
+      --background: 210 50% 98%;
+      --foreground: 220 40% 15%;
+
+      --card: 0 0% 100%;
+      --card-foreground: 220 40% 15%;
+
+      --popover: 0 0% 100%;
+      --popover-foreground: 220 40% 15%;
+
+      --primary: 207 100% 46%;
+      --primary-foreground: 0 0% 100%;
+
+      --secondary: 220 16% 96%;
+      --secondary-foreground: 220 40% 15%;
+
+      --muted: 220 16% 96%;
+      --muted-foreground: 220 10% 40%;
+
+      --accent: 215 20% 65%;
+      --accent-foreground: 220 40% 15%;
+
+      --destructive: 0 84% 60%;
+      --destructive-foreground: 0 0% 100%;
+
+      --border: 220 20% 90%;
+      --input: 220 20% 90%;
+      --ring: 207 100% 46%;
+
+      --radius: 0.5rem;
+    }
+
+    .dark {
+      --background: 220 40% 10%;
+      --foreground: 220 10% 95%;
+
+      --card: 220 40% 13%;
+      --card-foreground: 220 10% 95%;
+
+      --popover: 220 40% 13%;
+      --popover-foreground: 220 10% 95%;
+
+      --primary: 207 90% 50%;
+      --primary-foreground: 0 0% 100%;
+
+      --secondary: 220 40% 20%;
+      --secondary-foreground: 220 10% 95%;
+
+      --muted: 220 40% 20%;
+      --muted-foreground: 220 10% 70%;
+
+      --accent: 215 20% 30%;
+      --accent-foreground: 220 10% 95%;
+
+      --destructive: 0 70% 50%;
+      --destructive-foreground: 220 10% 95%;
+
+      --border: 220 40% 25%;
+      --input: 220 40% 25%;
+      --ring: 207 90% 50%;
+    }
+  }
+
+  @layer base {
+    * {
+      @apply border-border;
+    }
+    body {
+      @apply bg-background text-foreground font-sans;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      @apply font-display font-bold;
+    }
+  }
+
+  @layer components {
+    .gradient-bg {
+      @apply bg-gradient-to-r from-primary-600 to-primary-800;
+    }
+    .card-hover {
+      @apply transition-all duration-300 hover:shadow-card hover:-translate-y-1;
+    }
+    .btn-primary {
+      @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-md transition-colors;
+    }
+    .btn-outline {
+      @apply border border-primary-600 text-primary-600 hover:bg-primary-50 font-medium py-2 px-4 rounded-md transition-colors;
+    }
+  }
+
+  /* Custom animations for loading screen */
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+
+  @keyframes progress {
+    0% {
+      width: 0%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+
+  @keyframes progress-slow {
+    0% {
+      width: 0%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  .animate-progress {
+    animation: progress 2.5s ease-in-out forwards;
+  }
+
+  .animate-progress-slow {
+    animation: progress-slow 3s ease-in-out forwards;
+  }
