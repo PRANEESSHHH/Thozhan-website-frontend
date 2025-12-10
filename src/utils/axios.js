@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// Use environment variable for API base URL, fallback to Render backend
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://thozhan-website-backend.onrender.com";
+
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:3000/api/v1',
+    baseURL: `${API_BASE_URL}/api/v1`,
     headers: {
         'Content-Type': 'application/json'
     }

@@ -66,7 +66,8 @@ const CompanyDashboard = () => {
 
     const testBackendConnection = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/test');
+            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://thozhan-website-backend.onrender.com";
+            const response = await fetch(`${API_BASE_URL}/api/test`);
             const data = await response.json();
             if (data.success) {
                 toast.success("Backend connection successful!");
