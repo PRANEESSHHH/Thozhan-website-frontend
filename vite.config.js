@@ -11,6 +11,6 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    strictPort: true, // Exit if port 5173 is unavailable
+    strictPort: true,
   },
 })
