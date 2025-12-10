@@ -23,7 +23,7 @@ const CompanySetup = () => {
         location: "",
         file: null
     });
-    const {singleCompany} = useSelector(store=>store.company);
+    const {singleCompany, loading: companyLoading} = useSelector(store=>store.company);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -72,14 +72,31 @@ const CompanySetup = () => {
     }
 
     useEffect(() => {
-        setInput({
-            name: singleCompany.name || "",
-            description: singleCompany.description || "",
-            website: singleCompany.website || "",
-            location: singleCompany.location || "",
-            file: singleCompany.file || null
-        })
+        if (singleCompany) {
+            setInput({
+                name: singleCompany.name || "",
+                description: singleCompany.description || "",
+                website: singleCompany.website || "",
+                location: singleCompany.location || "",
+                file: singleCompany.file || null
+            })
+        }
     },[singleCompany]);
+
+    // Show loading while fetching company data
+    if (companyLoading || !singleCompany) {
+        return (
+            <div>
+                <Navbar />
+                <div className='max-w-xl mx-auto my-10 flex items-center justify-center'>
+                    <div className='flex items-center gap-2'>
+                        <Loader2 className='h-6 w-6 animate-spin' />
+                        <span>Loading company data...</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>
