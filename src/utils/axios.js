@@ -7,7 +7,8 @@ const axiosInstance = axios.create({
     baseURL: `${API_BASE_URL}/api/v1`,
     headers: {
         'Content-Type': 'application/json'
-    }
+    },
+    withCredentials: true  // Enable sending cookies with cross-origin requests
 });
 
 // Add a request interceptor to handle token refresh
