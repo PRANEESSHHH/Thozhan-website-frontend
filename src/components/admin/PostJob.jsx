@@ -7,7 +7,7 @@ import { Textarea } from '../ui/textarea'
 import { useSelector, useDispatch } from 'react-redux'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
-import axios from 'axios'
+import axiosInstance from '@/utils/axios'
 import { JOB_API_END_POINT } from '@/utils/constant'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
@@ -36,10 +36,20 @@ const PostJob = () => {
     const dispatch = useDispatch();
 
     const { companies } = useSelector(store => store.company);
+    const { user, isAuthenticated } = useSelector(store => store.auth);
 
     useEffect(() => {
         dispatch(resetLoading());
     }, [dispatch]);
+
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!isAuthenticated) {
+            console.warn('User not authenticated, redirecting to login...');
+            toast.error("Please login to post jobs");
+            navigate('/login');
+        }
+    }, [isAuthenticated, navigate]);
 
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
@@ -57,6 +67,14 @@ const PostJob = () => {
     const submitHandler = async (e) => {
         e.preventDefault();
         
+        // Check authentication first
+        if (!isAuthenticated || !user) {
+            toast.error("You must be logged in to post a job. Please login first.");
+            console.error('Authentication check failed:', { isAuthenticated, hasUser: !!user });
+            navigate('/login');
+            return;
+        }
+        
         // Validation - check ALL required fields that backend expects
         if (!input.title || !input.description || !input.salary || !input.location || !input.contactNumber || !input.companyId) {
             toast.error("Please fill in all required fields");
@@ -65,6 +83,13 @@ const PostJob = () => {
 
         try {
             setLoading(true);
+            
+            // Debug: Check cookies before making request
+            console.log('=== AUTHENTICATION DEBUG ===');
+            console.log('User authenticated:', isAuthenticated);
+            console.log('User info:', user?.fullname, user?.email);
+            console.log('Current cookies:', document.cookie);
+            console.log('=== END AUTH DEBUG ===');
             
             // Ensure requirements is not empty (backend splits by comma)
             let requirementsText = input.requirements.trim();
@@ -100,12 +125,9 @@ const PostJob = () => {
             console.log('companyId:', jobData.companyId);
             console.log('=== END DEBUG ===');
             
-            const res = await axios.post(`${JOB_API_END_POINT}/post`, jobData, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                withCredentials:true
-            });
+            // axiosInstance already has baseURL configured as /api/v1
+            // and withCredentials: true is set by default
+            const res = await axiosInstance.post('/job/post', jobData);
             
             if (res.data.success) {
                 toast.success("Job posted successfully!");

@@ -1,5 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { setUser } from './redux/authSlice'
 import Login from './components/auth/Login'
 import Signup from './components/auth/Signup'
 import Home from './components/Home'
@@ -18,6 +20,7 @@ import Applications from './components/admin/Applications'
 import MyApplications from './components/MyApplications'
 import ProtectedRoute from './components/admin/ProtectedRoute'
 import LoadingScreen from './components/LoadingScreen'
+import axiosInstance from './utils/axios'
 
 const appRouter = createBrowserRouter([
   {
@@ -93,6 +96,24 @@ const appRouter = createBrowserRouter([
 
 function App() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Check authentication on app load
+    const checkAuthStatus = async () => {
+      try {
+        const res = await axiosInstance.get('/user/profile');
+        if (res.data.success) {
+          dispatch(setUser(res.data.user));
+        }
+      } catch (error) {
+        // User is not authenticated, that's okay
+        console.log('User not authenticated');
+      }
+    };
+
+    checkAuthStatus();
+  }, [dispatch]);
 
   useEffect(() => {
     // Show loading screen for 3 seconds on initial app load

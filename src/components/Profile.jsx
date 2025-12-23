@@ -23,7 +23,9 @@ import {
     PlusCircle,
     TrendingUp,
     Eye,
-    Edit
+    Edit,
+    Camera,
+    Upload
 } from 'lucide-react'
 import { Badge } from './ui/badge'
 import { Label } from './ui/label'
@@ -47,7 +49,7 @@ import {
     CardHeader,
     CardTitle,
 } from "./ui/card"
-import axios from 'axios'
+import axiosInstance from '@/utils/axios'
 import { USER_API_END_POINT } from '@/utils/constant'
 import { setUser } from '@/redux/authSlice'
 import { toast } from 'sonner'
@@ -87,8 +89,12 @@ const Profile = () => {
         experience: '',
         skills: [],
         skillInput: '',
-        file: null
+        file: null,
+        profilePhoto: null
     });
+    
+    // State for profile photo preview
+    const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
     
     // Initialize form data when user data is available
     useEffect(() => {
@@ -102,8 +108,11 @@ const Profile = () => {
                 experience: user.profile?.experience || '',
                 skills: user.profile?.skills || [],
                 skillInput: '',
-                file: null
+                file: null,
+                profilePhoto: null
             });
+            // Set existing profile photo as preview
+            setProfilePhotoPreview(user?.profile?.profilePhoto || null);
         }
     }, [user]);
     
@@ -165,6 +174,34 @@ const Profile = () => {
         }
     };
     
+    const handleProfilePhotoChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // Check if it's an image
+            if (!file.type.startsWith('image/')) {
+                toast.error("Please select an image file");
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit for images
+                toast.error("Image size should be less than 5MB");
+                return;
+            }
+            
+            setFormData(prev => ({
+                ...prev,
+                profilePhoto: file
+            }));
+            
+            // Create preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfilePhotoPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    
     const handleSkillInputChange = (e) => {
         setFormData(prev => ({
             ...prev,
@@ -217,19 +254,28 @@ const Profile = () => {
             form.append('file', formData.file);
         }
         
+        if (formData.profilePhoto) {
+            form.append('profilePhoto', formData.profilePhoto);
+        }
+        
         try {
             setLoading(true);
-            const res = await axios.post(`${USER_API_END_POINT}/profile/update`, form, {
+            const res = await axiosInstance.post('/user/profile/update', form, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
-                },
-                withCredentials:true
+                }
             });
             
             if (res.data.success) {
                 dispatch(setUser(res.data.user));
                 toast.success(res.data.message);
                 setEditing(false);
+                // Reset file inputs
+                setFormData(prev => ({
+                    ...prev,
+                    file: null,
+                    profilePhoto: null
+                }));
             }
         } catch (error) {
             console.log(error);
@@ -453,6 +499,61 @@ const Profile = () => {
                                 <CardContent className="overflow-hidden">
                                     {editing ? (
                                         <form onSubmit={handleSubmit} className="space-y-4">
+                                            {/* Profile Picture Upload */}
+                                            <div className="space-y-2">
+                                                <Label className="flex items-center gap-2">
+                                                    <Camera className="h-4 w-4" />
+                                                    Profile Picture
+                                                </Label>
+                                                <div className="flex items-center gap-6">
+                                                    <div className="relative group">
+                                                        <Avatar className="h-24 w-24 border-4 border-gray-200 shadow-md">
+                                                            <AvatarImage 
+                                                                src={profilePhotoPreview} 
+                                                                alt={formData.fullname} 
+                                                            />
+                                                            <AvatarFallback className="bg-primary-100 text-primary-700 text-2xl">
+                                                                {getInitials(formData.fullname)}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                        <label 
+                                                            htmlFor="profilePhoto" 
+                                                            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                                        >
+                                                            <Camera className="h-6 w-6 text-white" />
+                                                        </label>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <Input 
+                                                            id="profilePhoto" 
+                                                            name="profilePhoto" 
+                                                            type="file" 
+                                                            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                                            onChange={handleProfilePhotoChange}
+                                                            className="cursor-pointer hidden"
+                                                        />
+                                                        <label 
+                                                            htmlFor="profilePhoto" 
+                                                            className="flex items-center gap-2 px-4 py-2 bg-primary-50 text-primary-700 hover:bg-primary-100 border border-primary-200 rounded-md cursor-pointer transition-colors w-fit"
+                                                        >
+                                                            <Upload className="h-4 w-4" />
+                                                            {formData.profilePhoto ? 'Change Photo' : 'Upload Photo'}
+                                                        </label>
+                                                        <p className="text-xs text-gray-500 mt-2">
+                                                            JPG, PNG, GIF or WEBP (max 5MB)
+                                                        </p>
+                                                        {formData.profilePhoto && (
+                                                            <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                                                                <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+                                                                New photo selected: {formData.profilePhoto.name}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <Separator className="my-4" />
+                                            
                                             <div className="space-y-2">
                                                 <Label htmlFor="fullname">
                                                     {user?.role === 'employer' ? 'Company Name' : 'Full Name'}
@@ -595,7 +696,23 @@ const Profile = () => {
                                                 <Button 
                                                     type="button" 
                                                     variant="outline" 
-                                                    onClick={() => setEditing(false)}
+                                                    onClick={() => {
+                                                        setEditing(false);
+                                                        // Reset form and preview to original values
+                                                        setFormData({
+                                                            fullname: user.fullname || '',
+                                                            email: user.email || '',
+                                                            phoneNumber: user.phoneNumber || '',
+                                                            bio: user.profile?.bio || '',
+                                                            location: user.profile?.location || '',
+                                                            experience: user.profile?.experience || '',
+                                                            skills: user.profile?.skills || [],
+                                                            skillInput: '',
+                                                            file: null,
+                                                            profilePhoto: null
+                                                        });
+                                                        setProfilePhotoPreview(user?.profile?.profilePhoto || null);
+                                                    }}
                                                 >
                                                     Cancel
                                                 </Button>
