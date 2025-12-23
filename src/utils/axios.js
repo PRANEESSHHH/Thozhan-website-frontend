@@ -18,6 +18,13 @@ axiosInstance.interceptors.request.use(
         if (config.url && !config.url.startsWith('/')) {
             config.url = '/' + config.url;
         }
+
+        // Add Authorization header if token exists in localStorage (for cross-origin requests)
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
         return config;
     },
     (error) => {

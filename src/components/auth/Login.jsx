@@ -85,13 +85,9 @@ const Login = () => {
                 },withCredentials:true
             });
             if (res.data.success) {
-                // Set user token cookie (expires in 7 days)
-                if (res.data.token) {
-                    document.cookie = `token=${res.data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
-                }
                 console.log("Login successful, stopping form loading");
                 dispatch(setLoading(false)); // Stop the form loading first
-                dispatch(setUser(res.data.user));
+                dispatch(setUser({ user: res.data.user, token: res.data.token }));
                 toast.success(res.data.message);
                 
                 console.log("Setting showLoadingScreen to true");
