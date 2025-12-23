@@ -18,12 +18,8 @@ const useGetAllAdminJobs = (forceRefresh = false) => {
             
             console.log('Fetching admin jobs from:', `${JOB_API_END_POINT}/admin/get`);
             
-            const res = await axios.get(`${JOB_API_END_POINT}/admin/get`, { 
+            const res = await axiosInstance.get(`${JOB_API_END_POINT}/admin/get`, {
                 timeout: 30000, // Increased to 30 seconds for demo
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                withCredentials: true,
             });
             
             console.log('Admin jobs fetch response:', res.data);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
+import axiosInstance from '@/utils/axios';
 import { COMPANY_API_END_POINT } from '@/utils/constant';
 import { setCompanies, setLoading } from '@/redux/companySlice';
 import { toast } from 'sonner';
