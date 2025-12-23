@@ -15,7 +15,9 @@ const CompanyCreate = () => {
     const dispatch = useDispatch();
     const registerNewCompany = async () => {
         try {
-            const res = await axiosInstance.post('/company/register', {companyName},{withCredentials:true});
+            console.log('Creating company with name:', companyName);
+            const res = await axiosInstance.post('/company/register', {companyName}, {withCredentials: true});
+            console.log('Company creation response:', res.data);
             if(res?.data?.success){
                 dispatch(setSingleCompany(res.data.company));
                 toast.success(res.data.message);
@@ -23,7 +25,8 @@ const CompanyCreate = () => {
                 navigate(`/admin/companies/${companyId}`);
             }
         } catch (error) {
-            console.log(error);
+            console.error('Company creation error:', error);
+            console.error('Error response:', error.response?.data);
             toast.error(error.response?.data?.message || 'Failed to create company');
         }
     }
