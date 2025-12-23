@@ -5,7 +5,7 @@ import { MoreHorizontal, CheckCircle, XCircle, Clock, HourglassIcon } from 'luci
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 import { APPLICATION_API_END_POINT } from '@/utils/constant';
-import axios from 'axios';
+import axios from '@/utils/axios';
 import { Badge } from '../ui/badge';
 import { setAllApplicants } from '@/redux/applicationSlice';
 import { useNavigate } from 'react-router-dom';
@@ -58,7 +58,7 @@ const ApplicantsTable = () => {
 
         setLoading(true);
         try {
-            const res = await axios.post(`${APPLICATION_API_END_POINT}/status/${applicationId}/update`, { status },{withCredentials:true});
+            const res = await axios.post(`${APPLICATION_API_END_POINT}/status/${applicationId}/update`, { status });
 
             if (res.data.success) {
                 // Update the local state to reflect the change

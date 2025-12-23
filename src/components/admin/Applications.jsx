@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from '../shared/Navbar'
 import { APPLICATION_API_END_POINT } from '@/utils/constant'
-import axios from 'axios'
+import axios from '@/utils/axios'
 import { toast } from 'sonner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Badge } from '../ui/badge'
@@ -66,7 +66,7 @@ const Applications = () => {
     const fetchAllApplications = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`${APPLICATION_API_END_POINT}/employer/all`,{withCredentials:true});
+            const res = await axios.get(`${APPLICATION_API_END_POINT}/employer/all`);
             
             if (res.data.success) {
                 setApplications(res.data.applications);
