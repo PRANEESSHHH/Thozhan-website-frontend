@@ -8,6 +8,7 @@ import { APPLICATION_API_END_POINT } from '@/utils/constant';
 import axios from 'axios';
 import { Badge } from '../ui/badge';
 import { setAllApplicants } from '@/redux/applicationSlice';
+import { useNavigate } from 'react-router-dom';
 
 const shortlistingStatus = ["accepted", "rejected", "waitlist", "pending"];
 
@@ -42,31 +43,45 @@ const getStatusBadge = (status) => {
 
 const ApplicantsTable = () => {
     const { applicants } = useSelector(store => store.application);
+    const { isAuthenticated } = useSelector(store => store.auth);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
     const statusHandler = async (status, applicationId) => {
+        // Check if user is authenticated
+        if (!isAuthenticated) {
+            toast.error('Please log in to update application status');
+            navigate('/login');
+            return;
+        }
+
         setLoading(true);
         try {
             const res = await axios.post(`${APPLICATION_API_END_POINT}/status/${applicationId}/update`, { status },{withCredentials:true});
-            
+
             if (res.data.success) {
                 // Update the local state to reflect the change
                 const updatedApplications = {
                     ...applicants,
-                    applications: applicants.applications.map(app => 
-                        app._id === applicationId 
+                    applications: applicants.applications.map(app =>
+                        app._id === applicationId
                             ? { ...app, status: status.toLowerCase() }
                             : app
                     )
                 };
                 dispatch(setAllApplicants(updatedApplications));
-                
+
                 toast.success(`Application ${status.toLowerCase()} successfully!`);
             }
         } catch (error) {
             console.error('Status update error:', error);
-            toast.error(error.response?.data?.message || 'Failed to update status');
+            if (error.response?.status === 401) {
+                toast.error('Authentication failed. Please log in again.');
+                navigate('/login');
+            } else {
+                toast.error(error.response?.data?.message || 'Failed to update status');
+            }
         } finally {
             setLoading(false);
         }
